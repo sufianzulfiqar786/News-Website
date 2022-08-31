@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 // import PropTypes from 'prop-types'
 import Cards from '../Components/Cards'
+import Spinner from '../Components/Spinner';
 import '../CSS/Home.css';
 
 export class Home extends Component {
@@ -106,44 +107,56 @@ export class Home extends Component {
 
     async componentDidMount() {
         console.log("cdm");
-        let url = "https://newsapi.org/v2/everything?domains=wsj.com&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=1&pageSize=6";
+        let url = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=1&pageSize=${this.props.pageSize}`;
         // let url = "";
+        this.setState({ loading: true });
         let data = await fetch(url);
         let parsedData = await data.json()
         console.log(parsedData);
-        this.setState({ articles: parsedData.articles })
+        this.setState({ 
+            articles: parsedData.articles, 
+            totalResults: parsedData.totalResults,
+            loading:false
+        })
     }
 
 
     handleNextClick = async () => {
         console.log("Next")
+        if (!(this.state.page + 1 > Math.ceil(this.state.totalResults / this.props.pageSize))) {
 
-        let url = `https://newsapi.org/v2/everything?domains=wsj.com&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=${this.state.page + 1}&pageSize=6`;
-        // let url = "";
-        let data = await fetch(url);
-        let parsedData = await data.json()
-        console.log(parsedData);
-        this.setState({
-            page: this.state.page + 1,
-            articles: parsedData.articles
-        })
+            let url = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`;
+            // let url = "";
+            this.setState({ loading: true });
+            let data = await fetch(url);
+            let parsedData = await data.json()
+            console.log(parsedData);
+            this.setState({
+                page: this.state.page + 1,
+                articles: parsedData.articles,
+                loading: false
+            })
 
-       
+
+        }
+
     }
 
     handlePreClick = async () => {
         console.log("Pre")
 
-        let url = `https://newsapi.org/v2/everything?domains=wsj.com&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=${this.state.page - 1}&pageSize=6`;
+        let url = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=bdebb2811b9f4fc3b3df1735dc9f7cbd&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
         // let url = "";
+        this.setState({ loading: true });
         let data = await fetch(url);
         let parsedData = await data.json()
         console.log(parsedData);
         this.setState({
             page: this.state.page - 1,
-            articles: parsedData.articles
+            articles: parsedData.articles,
+            loading: false
         })
-       
+
     }
 
 
@@ -158,9 +171,9 @@ export class Home extends Component {
             <div>
 
                 <div className="fullBody">
+                    <div className="fcontainer row my-5">
 
-                    <div className="fcontainer row">
-                        {this.state.articles.map((element) => {
+                        { !this.state.loading && this.state.articles.map((element) => {
                             return <div className="newItem col-md-4 col-sm-6  my-2" key={element.url}>
 
                                 <Cards
@@ -173,11 +186,17 @@ export class Home extends Component {
                         })}
 
 
+<div className="container d-flex justify-content-center">
+
+{this.state.loading && <Spinner />} 
+                           
+                        </div>
+
                         <div className="container d-flex justify-content-between">
 
                             <button disabled={this.state.page <= 1} type='button' className='btn btn-dark' onClick={this.handlePreClick} > &larr; Previous </button>
                             <h1>{this.state.page}</h1>
-                            <button disabled={this.state.page >= 8} type='button' className='btn btn-dark' onClick={this.handleNextClick} > Next &rarr;</button>
+                            <button disabled={this.state.page >= Math.ceil(this.state.totalResults / this.props.pageSize)} type='button' className='btn btn-dark' onClick={this.handleNextClick} > Next &rarr;</button>
 
                         </div>
 
