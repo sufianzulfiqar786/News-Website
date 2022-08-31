@@ -1,0 +1,29 @@
+@media (min-width:0px) and (max-width:100003px){
+   .fullBody{
+      display: flex;
+   justify-content: center;
+   width: 100%;
+  }
+  
+  .fcontainer {
+     width: 80%;
+     /* background-color: red; */
+     display: flex;
+     /* border: 2px solid black; */
+     
+  }
+  
+  
+  .row1 {
+      /* background-color: yellow; */
+      display: flex;
+   justify-content: center;
+   flex-wrap: wrap;
+      /* border: 2px solid black; */
+   }
+}
+
+
+
+
+
